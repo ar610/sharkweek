@@ -7,20 +7,42 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { addDays, differenceInDays, format, isSameDay, isWithinInterval } from 'date-fns'
+import { db } from './firebase';
+import { collection, Firestore, doc, getDoc } from "firebase/firestore"; 
 
 export default function PeriodTracker() {
   const [selectedDate, setSelectedDate] = useState(null)
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
   const [periodDates, setPeriodDates] = useState([])
-  const [cycleLength, setCycleLength] = useState(29)
-  const [periodLength, setPeriodLength] = useState(7)
   var periodStarted = false;
   var periodEnded = false;
+  const [cycleLength, setCycleLength] = useState(30)
+  const [periodLength, setPeriodLength] = useState(10)
+
+async function getPeriodStats() {
+  const docRef = doc(db, 'user001', 'periodStats')
+  const docSnap = await getDoc(docRef)
+  const docRef2 = doc(docRef, 'periods', '1')
+  const docSnap2 = await getDoc(docRef2)
+
+  if (docSnap.exists()) {
+    const data = docSnap.data()
+    setCycleLength(data?.avgLength)
+    setPeriodLength(data?.avgDuration)
+  } else {
+    return
+  }
+
+  if (docSnap2.exists()) {
+    
+  }
+}
+  getPeriodStats()
 
   useEffect(() => {
     if (startDate) {
-      const dates = Array.from({ length: endDate ? differenceInDays(endDate, startDate) : periodLength }, (_, i) => addDays(startDate, i))
+      const dates = Array.from({ length: endDate ? differenceInDays(endDate, startDate) + 1 : periodLength }, (_, i) => addDays(startDate, i))
       setPeriodDates(dates)
     }
   }, [startDate, periodLength])
@@ -32,6 +54,10 @@ export default function PeriodTracker() {
   const handleSetStartDate = () => {
     if (selectedDate) {
       setStartDate(selectedDate)
+      if (startDate) {
+        const dates = Array.from({ length: endDate ? differenceInDays(endDate, startDate) : periodLength }, (_, i) => addDays(startDate, i))
+        setPeriodDates(dates)
+      }
     }
   }
 
@@ -70,6 +96,9 @@ export default function PeriodTracker() {
   const isDateInPeriod = (date) => {
     return periodDates.some(periodDate => isSameDay(periodDate, date))
   }
+
+  // const querySnapshot = getDocs(collection(FirestoreDatabase, "user001"))
+  // console.log()
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">

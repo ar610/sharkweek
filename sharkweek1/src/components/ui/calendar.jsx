@@ -2,11 +2,11 @@
 import * as React from "react"
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons"
 import { DayPicker } from "react-day-picker"
-import {useState} from 'react';
+import { useState } from 'react';
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-function Calendar({
+function Calendar ({
   className,
   classNames,
   showOutsideDays = true,
