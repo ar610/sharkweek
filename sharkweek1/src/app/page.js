@@ -6,18 +6,21 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { addDays, format, isSameDay, isWithinInterval } from 'date-fns'
+import { addDays, differenceInDays, format, isSameDay, isWithinInterval } from 'date-fns'
 
 export default function PeriodTracker() {
   const [selectedDate, setSelectedDate] = useState(null)
   const [startDate, setStartDate] = useState(null)
+  const [endDate, setEndDate] = useState(null)
   const [periodDates, setPeriodDates] = useState([])
   const [cycleLength, setCycleLength] = useState(29)
   const [periodLength, setPeriodLength] = useState(7)
+  var periodStarted = false;
+  var periodEnded = false;
 
   useEffect(() => {
     if (startDate) {
-      const dates = Array.from({ length: periodLength }, (_, i) => addDays(startDate, i))
+      const dates = Array.from({ length: endDate ? differenceInDays(endDate, startDate) : periodLength }, (_, i) => addDays(startDate, i))
       setPeriodDates(dates)
     }
   }, [startDate, periodLength])
@@ -29,6 +32,16 @@ export default function PeriodTracker() {
   const handleSetStartDate = () => {
     if (selectedDate) {
       setStartDate(selectedDate)
+    }
+  }
+
+  const handleSetEndDate = () => {
+    if (selectedDate) {
+      setEndDate(selectedDate)
+      if (startDate) {
+        const dates = Array.from({ length: endDate ? differenceInDays(endDate, startDate) : periodLength }, (_, i) => addDays(startDate, i))
+        setPeriodDates(dates)
+      }
     }
   }
 
@@ -85,7 +98,14 @@ export default function PeriodTracker() {
               className="mt-4 w-full"
               disabled={!selectedDate}
             >
-              Set as Start Date
+              Set as start Date
+            </Button>
+            <Button 
+              onClick={handleSetEndDate} 
+              className="mt-4 w-full"
+              disabled={!selectedDate}
+            >
+              Set as end Date
             </Button>
           </CardContent>
         </Card>
