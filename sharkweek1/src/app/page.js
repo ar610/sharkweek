@@ -1,101 +1,119 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useState } from 'react'
+import { Calendar } from '@/components/ui/calendar'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { addDays, format } from 'date-fns'
+
+export default function PeriodTracker() {
+  const [selectedDates, setSelectedDates] = useState([])
+  const [cycleLength, setCycleLength] = useState(29)
+  const [periodLength, setPeriodLength] = useState(7)
+
+  const handleDateSelect = (dates) => {
+    if (dates) {
+      setSelectedDates(dates.sort((a, b) => a.getTime() - b.getTime()))
+    }
+  }
+
+  const getExpectedEndDate = () => {
+    if (selectedDates.length === 0) return null
+    const startDate = selectedDates[0]
+    return addDays(startDate, periodLength - 1)
+  }
+
+  const formatDate = (date) => {
+    return date ? format(date, 'MMMM d, yyyy') : ''
+  }
+
+  const handlePeriodLengthChange = (e) => {
+    const value = parseInt(e.target.value, 10)
+    if (!isNaN(value) && value > 0) {
+      setPeriodLength(value)
+    }
+  }
+
+  const handleCycleLengthChange = (e) => {
+    const value = parseInt(e.target.value, 10)
+    if (!isNaN(value) && value > 0) {
+      setCycleLength(value)
+    }
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <div className="min-h-screen bg-gray-900 text-white p-4">
+      <h1 className="text-3xl font-bold mb-6">Menstruation Tracker</h1>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="bg-gray-800">
+          <CardHeader>
+            <CardTitle>Period Calendar</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Calendar
+              mode="multiple"
+              selected={selectedDates}
+              onSelect={handleDateSelect}
+              className="rounded-md border"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-6">
+          <Card className="bg-gray-800">
+            <CardHeader>
+              <CardTitle>Period Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {selectedDates.length > 0 ? (
+                <>
+                  <p className="text-red-400">Period is expected to end on {formatDate(getExpectedEndDate())}</p>
+                  <p className="text-gray-400">This period lasts for a total of {periodLength} days</p>
+                </>
+              ) : (
+                <p>Select your period start date on the calendar</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800">
+            <CardHeader>
+              <CardTitle>Stats</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-4">
+                <Label htmlFor="periodLength" className="w-1/2">Avg period duration:</Label>
+                <Input
+                  id="periodLength"
+                  type="number"
+                  value={periodLength}
+                  onChange={handlePeriodLengthChange}
+                  min="1"
+                  className="w-1/2 bg-gray-700 text-white"
+                />
+              </div>
+              <div className="flex items-center space-x-4">
+                <Label htmlFor="cycleLength" className="w-1/2">Avg cycle length:</Label>
+                <Input
+                  id="cycleLength"
+                  type="number"
+                  value={cycleLength}
+                  onChange={handleCycleLengthChange}
+                  min="1"
+                  className="w-1/2 bg-gray-700 text-white"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Button className="w-full" variant="default">
+            Period hasn't ended
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
-  );
+  )
 }
