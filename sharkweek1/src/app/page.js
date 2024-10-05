@@ -1,32 +1,35 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { addDays, format } from 'date-fns'
+import { addDays, format, isSameDay, isWithinInterval } from 'date-fns'
 
 export default function PeriodTracker() {
-  const [selectedDates, setSelectedDates] = useState([])
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [startDate, setStartDate] = useState(null)
+  const [periodDates, setPeriodDates] = useState([])
   const [cycleLength, setCycleLength] = useState(29)
   const [periodLength, setPeriodLength] = useState(7)
 
-  const handleDateSelect = (dates) => {
-    if (dates) {
-      setSelectedDates(dates.sort((a, b) => a.getTime() - b.getTime()))
+  useEffect(() => {
+    if (startDate) {
+      const dates = Array.from({ length: periodLength }, (_, i) => addDays(startDate, i))
+      setPeriodDates(dates)
     }
+  }, [startDate, periodLength])
+
+  const handleDateSelect = (date) => {
+    setSelectedDate(date)
   }
 
-  const getExpectedEndDate = () => {
-    if (selectedDates.length === 0) return null
-    const startDate = selectedDates[0]
-    return addDays(startDate, periodLength - 1)
-  }
-
-  const formatDate = (date) => {
-    return date ? format(date, 'MMMM d, yyyy') : ''
+  const handleSetStartDate = () => {
+    if (selectedDate) {
+      setStartDate(selectedDate)
+    }
   }
 
   const handlePeriodLengthChange = (e) => {
@@ -43,6 +46,18 @@ export default function PeriodTracker() {
     }
   }
 
+  const getExpectedEndDate = () => {
+    return startDate ? addDays(startDate, periodLength - 1) : null
+  }
+
+  const formatDate = (date) => {
+    return date ? format(date, 'MMMM d, yyyy') : ''
+  }
+
+  const isDateInPeriod = (date) => {
+    return periodDates.some(periodDate => isSameDay(periodDate, date))
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-3xl font-bold mb-6">Menstruation Tracker</h1>
@@ -54,11 +69,24 @@ export default function PeriodTracker() {
           </CardHeader>
           <CardContent>
             <Calendar
-              mode="multiple"
-              selected={selectedDates}
+              mode="single"
+              selected={selectedDate}
               onSelect={handleDateSelect}
               className="rounded-md border"
+              modifiers={{
+                period: (date) => isDateInPeriod(date),
+              }}
+              modifiersStyles={{
+                period: { color: 'white', backgroundColor: 'red' },
+              }}
             />
+            <Button 
+              onClick={handleSetStartDate} 
+              className="mt-4 w-full"
+              disabled={!selectedDate}
+            >
+              Set as Start Date
+            </Button>
           </CardContent>
         </Card>
 
@@ -67,14 +95,14 @@ export default function PeriodTracker() {
             <CardHeader>
               <CardTitle>Period Information</CardTitle>
             </CardHeader>
-            <CardContent>
-              {selectedDates.length > 0 ? (
+            <CardContent className="space-y-4">
+              <p>Selected Date: {formatDate(selectedDate)}</p>
+              <p>Start Date: {formatDate(startDate)}</p>
+              {startDate && (
                 <>
                   <p className="text-red-400">Period is expected to end on {formatDate(getExpectedEndDate())}</p>
                   <p className="text-gray-400">This period lasts for a total of {periodLength} days</p>
                 </>
-              ) : (
-                <p>Select your period start date on the calendar</p>
               )}
             </CardContent>
           </Card>
