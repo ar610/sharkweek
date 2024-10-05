@@ -14,55 +14,68 @@ const moodColors = {
   'Very Sad': '#F44336'
 }
 
-export default function MoodTracker() {
-  const [selectedDate, setSelectedDate] = useState(null)
-  const [moodData, setMoodData] = useState({})
+var moodData_ = {'2024-10-02': 'Neutral'}
 
+export default function MoodTracker() {
+    const [selectedDate, setSelectedDate] = useState(null)
+    const [moodData, setMoodData] = useState({})
+
+  // Handle date selection from the calendar
   const handleDateSelect = useCallback((date) => {
     setSelectedDate(date)
+    console.log(moodData_)
   }, [])
 
+  // Handle mood selection for the selected date
   const handleMoodSelect = useCallback((mood) => {
     if (selectedDate) {
       const dateKey = format(selectedDate, 'yyyy-MM-dd')
-      setMoodData(prevData => ({
-        ...prevData,
-        [dateKey]: mood
-      }))
+    //   setMoodData(prevData => ({
+    //     ...prevData,
+    //     [dateKey]: mood // Store mood for the selected date
+    //   }))
+    moodData_[dateKey] = mood
     }
   }, [selectedDate])
 
+  // Get the mood for a specific date
   const getMoodForDate = useCallback((date) => {
     const dateKey = format(date, 'yyyy-MM-dd')
-    return moodData[dateKey]
+    return moodData_[dateKey] // Retrieve mood from state
   }, [moodData])
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-3xl font-bold mb-6">Mood Tracker</h1>
-      
+
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="bg-gray-800">
           <CardHeader>
             <CardTitle>Mood Calendar</CardTitle>
           </CardHeader>
           <CardContent>
-            <Calendar
+            
+             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={handleDateSelect}
               className="rounded-md border"
               modifiers={{
-                mood: (date) => getMoodForDate(date) !== undefined,
+                neutral: (date) => (getMoodForDate(date) == "Neutral"),
+                vhappy: (date) => (getMoodForDate(date) == "Very Happy"),
+                happy: (date) => (getMoodForDate(date) == "Happy"),
+                sad: (date) => (getMoodForDate(date) == "Sad"),
+                vsad: (date) => (getMoodForDate(date) == "Very Sad"),
               }}
               modifiersStyles={{
-                mood: (date) => ({
-                  backgroundColor: moodColors[getMoodForDate(date) || ''],
-                  color: 'white',
-                  fontWeight: 'bold',
-                }),
+                period: { color: 'white', backgroundColor: "#FFC107" },
+                vhappy: { color: 'white', backgroundColor: "#4CAF50" },
+                happy: { color: 'white', backgroundColor: "#8BC34A" },
+                sad: { color: 'white', backgroundColor: "#FF9800" },
+                vsad: { color: 'white', backgroundColor: "#F44336" },
               }}
             />
+            
           </CardContent>
         </Card>
 
