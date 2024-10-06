@@ -158,7 +158,7 @@ export default function PeriodTracker() {
           </Card>
 
           <Button className="w-full" variant="default">
-            Period hasn't ended
+            Period has not ended
           </Button>
         </div>
       </div>
