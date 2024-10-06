@@ -1,5 +1,4 @@
-https://sharkweek-lstiz8xut-ar6s-projects.vercel.app/period-tracker
-
+https://sharkweek.vercel.app/
 *This project was built over the night of 5th October and the morning of the 6th at Tinkerspace, as part of a Saturday Hacknight.*
 
 # Period tracker
