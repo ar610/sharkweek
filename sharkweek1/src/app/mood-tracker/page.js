@@ -93,7 +93,7 @@ export default function MoodTracker() {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select your mood" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="moodlist">
                   {Object.entries(moodColors).map(([mood, color]) => (
                     <SelectItem key={mood} value={mood}>
                       <div className="flex items-center">
@@ -107,7 +107,7 @@ export default function MoodTracker() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-white-400">
                 Select a date and mood to update the calendar
               </p>
             </CardContent>

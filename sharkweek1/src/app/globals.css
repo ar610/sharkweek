@@ -11,7 +11,10 @@ body {
     text-wrap: balance;
   }
 }
-
+*{
+  color:white;
+}
+.moodlist * {color:black;}
 @layer base {
   :root {
     --background: 0 0% 100%;
